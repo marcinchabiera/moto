@@ -16,9 +16,9 @@ module Moto
       @context = @website.context
     end
     
-    def session
-      @website.session
-    end
+    # def session
+    #   @website.session
+    # end
     
     def page(p)
       @context.client(@website.class.name.split('::').pop).page(p)

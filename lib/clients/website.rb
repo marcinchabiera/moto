@@ -19,8 +19,9 @@ module Moto
         # TODO: make session driver configurable
         context.runner.my_config[:capybara][:default_selector] &&
             Capybara.default_selector = context.runner.my_config[:capybara][:default_selector]
-        @session = Capybara::Session.new(context.runner.my_config[:capybara][:default_driver])
+        Thread.current['capybara_session'] = Capybara::Session.new(context.runner.my_config[:capybara][:default_driver])
         @pages = {}
+        @session = Thread.current['capybara_session']
       end
 
       def end_run
