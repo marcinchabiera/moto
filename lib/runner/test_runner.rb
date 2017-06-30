@@ -36,6 +36,11 @@ module Moto
 
         Thread.abort_on_exception = true
 
+        # Get all tests requested
+        tests_total = test_provider.create_tests
+        Moto::Lib::Config.moto[:test_runner][:tests_total] = tests_total
+        puts "TESTS TOTAL: #{tests_total}"
+
         (1..threads_max).each do |index|
           Thread.new do
             Thread.current[:id] = index
@@ -51,9 +56,9 @@ module Moto
         loop do
           run_status = @test_reporter.run_status
           if (test_provider.num_waiting == threads_max) ||
-             (@stop_conditions[:error] && run_status.tests_error.length   > 0) ||
-             (@stop_conditions[:fail]  && run_status.tests_failed.length  > 0) ||
-             (@stop_conditions[:skip]  && run_status.tests_skipped.length > 0)
+              (@stop_conditions[:error] && run_status.tests_error.length > 0) ||
+              (@stop_conditions[:fail] && run_status.tests_failed.length > 0) ||
+              (@stop_conditions[:skip] && run_status.tests_skipped.length > 0)
             break
           end
 

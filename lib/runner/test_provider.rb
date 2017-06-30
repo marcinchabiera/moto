@@ -18,44 +18,25 @@ module Moto
 
       # Use this to retrieve tests safely in multithreaded environment
       def get_test
-        create_tests
         @queue.pop
       end
 
-      # Pushes new tests to the queue if possible and the queue is already empty
+      # Pushes all tests requested to the queue
       def create_tests
-        if @queue.empty?
-
-          test_metadata = get_test_metadata
+        while @tests_metadata.count > 0 do
+          test_metadata = @tests_metadata.shift
 
           if test_metadata
             test_variants = @test_generator.get_test_with_variants(test_metadata)
             test_variants.each do |test|
-              @queue.push(test)
+              for test_repeat in 0..@current_test_repeat
+                @queue.push(test)
+              end
             end
           end
-
         end
+        @queue.length
       end
-      private :create_tests
-
-      # Returns metadata of the test while supporting the number of repeats specified by the user
-      # return [Moto::Test::Metadata]
-      def get_test_metadata
-
-        if @current_test_repeat == 1
-          @test_metadata = @tests_metadata.shift
-        end
-
-        if @current_test_repeat == @test_repeats
-          @current_test_repeat = 1
-        else
-          @current_test_repeat += 1
-        end
-
-        @test_metadata
-      end
-      private :get_test_metadata
 
       # Number of threads waiting for a job
       def num_waiting

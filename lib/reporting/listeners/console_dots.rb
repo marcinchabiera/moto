@@ -1,7 +1,15 @@
+require_relative '../../runner/test_provider'
+
 module Moto
   module Reporting
     module Listeners
       class ConsoleDots < Base
+
+        def initialize(run_params)
+          @chars_counter = 0
+          @chars_line_max = config[:console_dots] ? config[:console_dots][:chars_line_max] : nil
+          @chars_line_max = 50 if !@chars_line_max # default console dots chars line max
+        end
 
         def end_run(run_status)
           puts ''
@@ -46,14 +54,33 @@ module Moto
         end
 
         def end_test(test_status)
-          print case test_status.results.last.code
-          when Moto::Test::Result::PASSED   then '.'
-          when Moto::Test::Result::FAILURE  then 'F'
-          when Moto::Test::Result::ERROR    then 'E'
-          when Moto::Test::Result::SKIPPED  then 's'
+          result = case test_status.results.last.code
+                     when Moto::Test::Result::PASSED then
+                       '.'
+                     when Moto::Test::Result::FAILURE then
+                       'F'
+                     when Moto::Test::Result::ERROR then
+                       'E'
+                     when Moto::Test::Result::SKIPPED then
+                       's'
+                   end
+
+          print result
+          @chars_counter += 1
+          @tests_total = Moto::Lib::Config.moto[:test_runner][:tests_total]
+          if @chars_line_max
+            puts " [#{@chars_counter}/#{@tests_total}]" if (@chars_counter % @chars_line_max) == 0 || @chars_counter == @tests_total
           end
           STDOUT.flush
+
         end
+
+        # @return [Hash] Hash with config for ConsolDots
+        def config
+          Moto::Lib::Config.moto[:test_reporter][:listeners]
+        end
+
+        private :config
 
       end
     end
