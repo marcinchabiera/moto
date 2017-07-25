@@ -29,7 +29,7 @@ module Moto
           if test_metadata
             test_variants = @test_generator.get_test_with_variants(test_metadata)
             test_variants.each do |test|
-              for test_repeat in 0..@current_test_repeat
+              for test_repeat in 1..@current_test_repeat
                 @queue.push(test)
               end
             end
