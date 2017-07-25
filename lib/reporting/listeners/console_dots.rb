@@ -54,6 +54,7 @@ module Moto
         end
 
         def end_test(test_status)
+
           result = case test_status.results.last.code
                      when Moto::Test::Result::PASSED then
                        '.'
