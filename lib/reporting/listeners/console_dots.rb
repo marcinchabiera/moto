@@ -8,7 +8,7 @@ module Moto
         def initialize(run_params)
           @chars_counter = 0
           @chars_line_max = config[:console_dots] ? config[:console_dots][:chars_line_max] : nil
-          @chars_line_max = 100 if !@chars_line_max # default console dots chars line max
+          @chars_line_max = 8 if !@chars_line_max # default console dots chars line max
         end
 
         def end_run(run_status)
@@ -72,7 +72,8 @@ module Moto
           @tests_total = Moto::Lib::Config.moto[:test_runner][:tests_total]
           @estimation_time_start = Time.now if !@estimation_time_start
           if @chars_line_max
-            if (@chars_counter % @chars_line_max) == 0 || @chars_counter == @tests_total
+            chars_modulo = @chars_counter % @chars_line_max
+            if chars_modulo == 0 || @chars_counter == @tests_total
 
               # Estimate time remaining
               time_elapsed = Time.now - @estimation_time_start
@@ -80,6 +81,8 @@ module Moto
               time_remaining = Time.at(time_remaining.to_i).utc.strftime "%H:%M:%S"
               time_elapsed = Time.at(time_elapsed.to_i).utc.strftime "%H:%M:%S"
 
+              print " " * (@chars_line_max - chars_modulo) if chars_modulo != 0
+              print "#{(@chars_counter.to_f/@tests_total*100).to_i}%".rjust(5,' ')
               puts " [#{@chars_counter}/#{@tests_total}] Time elapsed: #{time_elapsed} / remaining: #{time_remaining}"
             end
           end
